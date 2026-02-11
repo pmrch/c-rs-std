@@ -1,0 +1,19 @@
++------------------------------------------------+
+|                                                |
+|   Welcome, brave soul, to replicate!           |
+|                                                |
++------------------------------------------------+
+|                                                |
+|  Warning: You are about to enter the           |
+|  labyrinth of your own code.                   |
+|                                                |
+|  Common side effects include:                  |
+|    - Staring at compiler errors                |
+|    - Losing 20 minutes to semicolons           |
+|    - Realizing you forgot #include             | 
+|                                                |
+|  Tip: Coffee = sanity.                         |
+|                                                |
+|  Press enter to continue debugging...          |
+|                                                |
++------------------------------------------------+

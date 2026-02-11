@@ -29,15 +29,19 @@ typedef enum {
 } RustType;
 
 typedef struct {
-    void* data;
-    size_t len;
-    size_t type_size;
-    size_t total_capacity;
+    void* data;             // Stored data
+    size_t len;             // Number of elements
+    size_t elem_size;       // Size of variable type in bytes
+    size_t capacity;        // Max number of elements in Vec
 } Vec;
 
-size_t rust_type_size(RustType type);
+size_t rust_type_size(const RustType type);
 
-Result new_vec(Vec *vec, const RustType type);
-Result vec_push(Vec *vec, const void *item);
+Result new_vec(Vec *restrict vec, const RustType type);
+Result vec_push(Vec *restrict vec, const void *restrict item);
+
+void vec_free(Vec *restrict vec);
+
+const void *vec_get(const Vec *vec, size_t index);
 
 #endif
