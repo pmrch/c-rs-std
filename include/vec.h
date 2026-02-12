@@ -37,7 +37,9 @@ typedef struct {
 
 size_t rust_type_size(const RustType type);
 
-Result new_vec(Vec *restrict vec, const RustType type);
+Result vec_clear(Vec *vec);
+Result vec_pop(Vec *vec, void *out_item);
+Result vec_new(Vec *restrict vec, const RustType type);
 Result vec_push(Vec *restrict vec, const void *restrict item);
 
 void vec_free(Vec *restrict vec);

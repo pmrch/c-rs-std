@@ -35,5 +35,11 @@ if (WIN32)
     endif()
 elseif(UNIX)
     message(STATUS "Configuring for Linux/UNIX")
-    target_compile_options(replicate PRIVATE -g -O0 -Wall -Wextra)
+    target_compile_options(
+        replicate PRIVATE -g -O0 -Wall -Wextra -Wpedantic -Werror -Wuninitialized -Wmaybe-uninitialized
+        -Wconversion -Wsign-conversion -Wcast-align -Wcast-qual -Wstrict-aliasing=2 -Wpointer-arith
+        -Warray-bounds -Wnull-dereference -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+        -Wredundant-decls -Wshadow -Wformat=2 -Wformat-security -Wwrite-strings -Wvla -Wno-padded 
+        -Wno-declaration-after-statement
+    )
 endif()

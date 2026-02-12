@@ -1,4 +1,3 @@
-#include <corecrt_search.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -37,7 +36,7 @@ size_t rust_type_size(const RustType type) {
     }
 }
 
-const char *rust_type_name(const RustType type) {
+static const char *rust_type_name(const RustType type) {
     switch (type) {
         case TYPE_I8:   return "i8";
         case TYPE_U8:   return "u8";
@@ -55,7 +54,7 @@ const char *rust_type_name(const RustType type) {
     }
 }
 
-Result new_vec(Vec *restrict vec, const RustType type) {
+Result vec_new(Vec *restrict vec, const RustType type) {
     const char* type_name = rust_type_name(type);
     LOG_INFO("Creating new Vec of type %s", type_name);
 
@@ -123,6 +122,53 @@ Result vec_push(Vec *restrict vec, const void *restrict item) {
     return RESULT_OK();
 }
 
+Result vec_pop(Vec *vec, void *out_item) {
+    if (!vec || !vec->data) {
+        LOG_ERROR("vec_pop error: invalid argument (vec or its data is NULL) or not initialized!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    if (!out_item) {
+        LOG_ERROR("vec_pop error: out_item was NULL or uninitialized!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    const void *last_item = vec_get(vec, vec->len - 1);
+    if (!last_item) {
+        LOG_ERROR("vec_pop error: Failed to get last element of Vec!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    memcpy(out_item, last_item, vec->elem_size);
+
+    vec->len--;
+    LOG_INFO("Successfully popped last item of vec! New number of elements: %zu", vec->len);
+    return RESULT_OK();
+}
+
+Result vec_clear(Vec *vec) {
+    if (!vec || !vec->data) {
+        LOG_ERROR("vec_clear: attempted access on uninitialized Vec");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    vec->len = 0;
+    return RESULT_OK();
+}
+
+const void *vec_get(const Vec *vec, size_t index) {
+    if (!vec || !vec->data) {
+        LOG_ERROR("vec_get: attempted access on uninitialized Vec");
+        return NULL;
+    } else if (index > vec->len) {
+        LOG_ERROR("vec_get: tried to access invalid index %zu (len=%zu)", index, vec->len);
+        return NULL;
+    }
+
+    LOG_DEBUG("vec_get: returning element at index %zu", index);
+    return (const char*)vec->data + index * vec->elem_size;
+}
+
 void vec_free(Vec *restrict vec) {
     if (!vec) {
         LOG_WARN("vec_free: called with NULL Vec pointer");
@@ -141,17 +187,4 @@ void vec_free(Vec *restrict vec) {
     vec->capacity = 0;
 
     LOG_INFO("vec_free: Vec successfully freed");
-}
-
-const void *vec_get(const Vec *vec, size_t index) {
-    if (!vec || !vec->data) {
-        LOG_ERROR("vec_get: attempted access on uninitialized Vec");
-        return NULL;
-    } else if (index > vec->len) {
-        LOG_ERROR("vec_get: tried to access invalid index %zu (len=%zu)", index, vec->len);
-        return NULL;
-    }
-
-    LOG_DEBUG("vec_get: returning element at index %zu", index);
-    return (const char*)vec->data + index * vec->elem_size;
 }
