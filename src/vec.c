@@ -36,6 +36,14 @@ size_t rust_type_size(const RustType type) {
     }
 }
 
+size_t grow_capacity(const size_t current_capacity) {
+    if (current_capacity > SIZE_MAX / 3 * 2) {
+        return SIZE_MAX;
+    }
+
+    return current_capacity + (current_capacity / 2);
+}
+
 static const char *rust_type_name(const RustType type) {
     switch (type) {
         case TYPE_I8:   return "i8";
@@ -98,7 +106,7 @@ Result vec_push(Vec *restrict vec, const void *restrict item) {
 
     // Checks whether the next element would overflow in memory
     if (vec->len == vec ->capacity) {
-        size_t new_capacity = vec->capacity * 2;
+        size_t new_capacity = grow_capacity(vec->capacity);
         LOG_DEBUG("vec_push: growing Vec from %zu to %zu elements", vec->capacity, new_capacity);
 
         // Temporarily clones original data and increases capacity
@@ -122,7 +130,7 @@ Result vec_push(Vec *restrict vec, const void *restrict item) {
     return RESULT_OK();
 }
 
-Result vec_pop(Vec *vec, void *out_item) {
+Result vec_pop(Vec *restrict vec, void *out_item) {
     if (!vec || !vec->data) {
         LOG_ERROR("vec_pop error: invalid argument (vec or its data is NULL) or not initialized!");
         return RESULT_ERR(ERR_INVALID);
@@ -142,7 +150,7 @@ Result vec_pop(Vec *vec, void *out_item) {
     memcpy(out_item, last_item, vec->elem_size);
 
     vec->len--;
-    LOG_INFO("Successfully popped last item of vec! New number of elements: %zu", vec->len);
+    LOG_DEBUG("Successfully popped last item of vec! New number of elements: %zu", vec->len);
     return RESULT_OK();
 }
 
@@ -152,15 +160,28 @@ Result vec_clear(Vec *vec) {
         return RESULT_ERR(ERR_INVALID);
     }
 
+    size_t orig_len = vec->len;
     vec->len = 0;
+
+    LOG_DEBUG("Successfully cleared vec with %zu elements", orig_len);
     return RESULT_OK();
 }
 
-const void *vec_get(const Vec *vec, size_t index) {
+Result vec_is_empty(const Vec *vec, int *is_empty) {
+    if (!vec || !vec->data) {
+        LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    if (vec->len == 0) *is_empty = 1;
+    return RESULT_OK();
+}
+
+const void *vec_get(const Vec *restrict vec, size_t index) {
     if (!vec || !vec->data) {
         LOG_ERROR("vec_get: attempted access on uninitialized Vec");
         return NULL;
-    } else if (index > vec->len) {
+    } else if (index >= vec->len) {
         LOG_ERROR("vec_get: tried to access invalid index %zu (len=%zu)", index, vec->len);
         return NULL;
     }
@@ -173,18 +194,38 @@ void vec_free(Vec *restrict vec) {
     if (!vec) {
         LOG_WARN("vec_free: called with NULL Vec pointer");
         return;
+    } else if (!vec->data) {
+        LOG_WARN("Tried to free Vec that had no data or tried to double-free it");
+        return;
     }
 
-    if (vec->data) {
-        LOG_DEBUG("vec_free: freeing Vec with %zu elements (capacity=%zu)",
-                  vec->len, vec->capacity);
+    const char* calculated_footprint = calculate_memory_footprint(vec->capacity * vec->elem_size);
+    LOG_DEBUG("vec_free: freeing Vec with %zu elements (capacity=%zu, allocated=%s)",
+        vec->len, vec->capacity, calculated_footprint);
 
-        free(vec->data);
-        vec->data = NULL;
-    }
+    free(vec->data);
+    vec->data = NULL;
 
     vec->len = 0;
     vec->capacity = 0;
 
     LOG_INFO("vec_free: Vec successfully freed");
+}
+
+const char* calculate_memory_footprint(const size_t allocation) {
+    static char buf[64];
+
+    if (allocation == 0) {
+        snprintf(buf, sizeof(buf), "0 bytes");
+    } else if (allocation >= 1024*1024*1024) {
+        snprintf(buf, sizeof(buf), "%.2f GB", allocation / (1024.0*1024*1024));
+    } else if (allocation >= 1024*1024) {
+        snprintf(buf, sizeof(buf), "%.0f MB", allocation / (1024.0*1024));
+    } else if (allocation >= 1024) {
+        snprintf(buf, sizeof(buf), "%.2f KB", allocation / 1024.0);
+    } else {
+        snprintf(buf, sizeof(buf), "%zu bytes", allocation);
+    }
+
+    return buf;
 }

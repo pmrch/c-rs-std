@@ -33,7 +33,7 @@ int main() {
     printf("  - Total capacity: %zd\n", nv.capacity);
     printf("  - Number of elements: %zd\n", nv.len);
 
-    for (int64_t i = 0; i < 10000; i++) {
+    for (int64_t i = 0; i < 130000000; i++) {
         Result vec_pushed = vec_push(&nv, &(int64_t){2 * i});
         
         if (vec_pushed.err) {
@@ -80,13 +80,25 @@ int main() {
     printf("  - Number of elements: %zd\n", nv.len);
 
     void *out_iteem = malloc(sizeof(int64_t));
-    Result poppedd = vec_pop(&nv, out_item);
+    Result poppedd = vec_pop(&nv, out_iteem);
     if (poppedd.err) {
         LOG_ERROR("Failed to pop last item");
-        return -1;
+        free(out_item);
+    } else {
+        printf("popped: %zu\n", *(int64_t*)out_iteem);
     }
     
-    printf("popped: %zu", *(int64_t*)out_iteem);
+    int *is_empty = malloc(sizeof(int));
+    Result checked_empty = vec_is_empty(&nv, is_empty);
+    if (checked_empty.err) {
+        LOG_ERROR("Failed to check emptiness");
+        free(is_empty);
+    }
+
+    if (*is_empty) {
+        printf("The vec was empty\n");
+    }
+
     vec_free(&nv);
     return 0;
 }

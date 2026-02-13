@@ -70,7 +70,7 @@ Result read_to_string(const char *path, char **out_buffer) {
         return RESULT_ERR(ERR_IO);
     }
 
-    LOG_DEBUG("read_to_string: allocating buffer of size %lld", size + 1);
+    LOG_DEBUG("read_to_string: allocating buffer of size %d", size + 1);
     char *buffer = malloc((size_t)size + 1);
     if (!buffer) {
         LOG_ERROR("read_to_string error: failed to allocate buffer for file '%s'", path);

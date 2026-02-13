@@ -1,3 +1,6 @@
+#ifndef LOGGING_H
+#define LOGGING_H
+
 // Default log level
 #ifndef LOG_LEVEL
 #define LOG_LEVEL LOG_LEVEL_INFO
@@ -43,4 +46,6 @@
            __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #else
 #define LOG_ERROR(fmt, ...)
+#endif
+
 #endif
