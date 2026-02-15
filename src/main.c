@@ -73,30 +73,27 @@ int main() {
         return -1;
     }
 
-    printf("Cleared vec\n");
-    printf("Current vec stats: \n");
+    printf("\nCurrent vec stats: \n");
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);
-    printf("  - Number of elements: %zd\n", nv.len);
-
-    void *out_iteem = malloc(sizeof(int64_t));
-    Result poppedd = vec_pop(&nv, out_iteem);
-    if (poppedd.err) {
-        LOG_ERROR("Failed to pop last item");
-        free(out_item);
-    } else {
-        printf("popped: %zu\n", *(int64_t*)out_iteem);
-    }
+    printf("  - Number of elements: %zd\n\n", nv.len);
     
     int *is_empty = malloc(sizeof(int));
     Result checked_empty = vec_is_empty(&nv, is_empty);
     if (checked_empty.err) {
-        LOG_ERROR("Failed to check emptiness");
         free(is_empty);
     }
 
-    if (*is_empty) {
-        printf("The vec was empty\n");
+    if (!*is_empty) {
+        void *out_iteem = malloc(sizeof(int64_t));
+        Result poppedd = vec_pop(&nv, out_iteem);
+
+        if (poppedd.err) free(out_item);
+        else printf("popped: %zu\n", *(int64_t*)out_iteem);
+    } else LOG_WARN("Tried to use vec_pop on an empty array!"); 
+
+    if (vec_remove(&nv, 1, NULL).err) {
+        
     }
 
     vec_free(&nv);

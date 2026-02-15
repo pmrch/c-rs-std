@@ -42,12 +42,13 @@ size_t grow_capacity(const size_t current_capacity);
 Result vec_clear(Vec *vec);
 Result vec_pop(Vec *restrict vec, void *out_item);
 Result vec_is_empty(const Vec *vec, int *is_empty);
+Result vec_push(Vec *restrict vec, const void *item);
 Result vec_new(Vec *restrict vec, const RustType type);
-Result vec_push(Vec *restrict vec, const void *restrict item);
+Result vec_remove(Vec *restrict vec, const size_t index, void *removed);
 
 void vec_free(Vec *restrict vec);
 const void *vec_get(const Vec *restrict vec, size_t index);
 
-const char* calculate_memory_footprint(const size_t allocation);
+const char *calculate_memory_footprint(const size_t allocation);
 
 #endif
