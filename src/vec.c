@@ -139,7 +139,7 @@ Result vec_push(Vec *restrict vec, const void *item) {
         LOG_DEBUG("vec_push: growing Vec from %zu to %zu elements", vec->capacity, new_capacity);
 
         // Temporarily clones original data and increases capacity
-        char* temp = realloc(vec->data, new_capacity * vec->elem_size);
+        void* temp = realloc(vec->data, new_capacity * vec->elem_size);
 
         // Checks whether realloc was successful
         if (!temp) {
@@ -305,11 +305,11 @@ const char* calculate_memory_footprint(const size_t allocation) {
     if (allocation == 0) {
         snprintf(buf, sizeof(buf), "0 bytes");
     } else if (allocation >= 1024*1024*1024) {
-        snprintf(buf, sizeof(buf), "%.2f GB", allocation / (1024.0*1024*1024));
+        snprintf(buf, sizeof(buf), "%.2f GB", (double)allocation / (1024.0*1024*1024));
     } else if (allocation >= 1024*1024) {
-        snprintf(buf, sizeof(buf), "%.0f MB", allocation / (1024.0*1024));
+        snprintf(buf, sizeof(buf), "%.0f MB", (double)allocation / (1024.0*1024));
     } else if (allocation >= 1024) {
-        snprintf(buf, sizeof(buf), "%.2f KB", allocation / 1024.0);
+        snprintf(buf, sizeof(buf), "%.2f KB", (double)allocation / 1024.0);
     } else {
         snprintf(buf, sizeof(buf), "%zu bytes", allocation);
     }

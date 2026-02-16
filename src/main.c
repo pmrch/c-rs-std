@@ -2,12 +2,20 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/types.h>
 
 #include "io.h"
 #include "result.h"
 #include "vec.h"
 #include "logging.h"
+
+double now_seconds(void);
+double now_seconds(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
+}
 
 int main() {
     char *buffer = NULL;
@@ -33,7 +41,9 @@ int main() {
     printf("  - Total capacity: %zd\n", nv.capacity);
     printf("  - Number of elements: %zd\n", nv.len);
 
-    for (int64_t i = 0; i < 130000000; i++) {
+    int64_t pushed = (int64_t)13e7;
+    double start = now_seconds();
+    for (int64_t i = 0; i < pushed; i++) {
         Result vec_pushed = vec_push(&nv, &(int64_t){2 * i});
         
         if (vec_pushed.err) {
@@ -42,6 +52,9 @@ int main() {
         }
     }
 
+    double elapsed = now_seconds() - start;
+    printf("Pushed %zu elements in %.3f ms (%.2f M ops/sec)\n", 
+        nv.len, elapsed * 1000.0, ((double)nv.len / elapsed) / 1e6);
     printf("\nFilled vec details:\n");
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);

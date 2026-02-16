@@ -1,0 +1,78 @@
+[
+  {
+    "arguments": [
+      "/opt/gcc-15/bin/gcc",
+      "-std=gnu23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-march=native",
+      "-flto",
+      "-I./include",
+      "-c",
+      "-o",
+      "build/io.o",
+      "src/io.c"
+    ],
+    "directory": "/home/patrik/code/C/c-rs-std",
+    "file": "/home/patrik/code/C/c-rs-std/src/io.c",
+    "output": "/home/patrik/code/C/c-rs-std/build/io.o"
+  },
+  {
+    "arguments": [
+      "/opt/gcc-15/bin/gcc",
+      "-std=gnu23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-march=native",
+      "-flto",
+      "-I./include",
+      "-c",
+      "-o",
+      "build/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/patrik/code/C/c-rs-std",
+    "file": "/home/patrik/code/C/c-rs-std/src/main.c",
+    "output": "/home/patrik/code/C/c-rs-std/build/main.o"
+  },
+  {
+    "arguments": [
+      "/opt/gcc-15/bin/gcc",
+      "-std=gnu23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-march=native",
+      "-flto",
+      "-I./include",
+      "-c",
+      "-o",
+      "build/result.o",
+      "src/result.c"
+    ],
+    "directory": "/home/patrik/code/C/c-rs-std",
+    "file": "/home/patrik/code/C/c-rs-std/src/result.c",
+    "output": "/home/patrik/code/C/c-rs-std/build/result.o"
+  },
+  {
+    "arguments": [
+      "/opt/gcc-15/bin/gcc",
+      "-std=gnu23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-march=native",
+      "-flto",
+      "-I./include",
+      "-c",
+      "-o",
+      "build/vec.o",
+      "src/vec.c"
+    ],
+    "directory": "/home/patrik/code/C/c-rs-std",
+    "file": "/home/patrik/code/C/c-rs-std/src/vec.c",
+    "output": "/home/patrik/code/C/c-rs-std/build/vec.o"
+  }
+]
