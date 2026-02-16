@@ -7,7 +7,25 @@
 #include "io.h"
 #include "result.h"
 #include "vec.h"
+
 #include "logging.h"
+
+#if defined(_WIN32)
+#include <windows.h>
+double now_seconds(void) {
+    LARGE_INTEGER freq, counter;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&counter);
+    return (double)counter.QuadPart / (double)freq.QuadPart;
+}
+#else
+#include <time.h>
+double now_seconds(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
+}
+#endif
 
 int main() {
     char *buffer = NULL;
@@ -33,7 +51,9 @@ int main() {
     printf("  - Total capacity: %zd\n", nv.capacity);
     printf("  - Number of elements: %zd\n", nv.len);
 
-    for (int64_t i = 0; i < 130000000; i++) {
+    int64_t pushed = (int64_t)13e7;
+    double start = now_seconds();
+    for (int64_t i = 0; i < pushed; i++) {
         Result vec_pushed = vec_push(&nv, &(int64_t){2 * i});
         
         if (vec_pushed.err) {
@@ -42,6 +62,9 @@ int main() {
         }
     }
 
+    double elapsed = now_seconds() - start;
+    printf("Pushed %zu elements in %.3f ms (%.2f M ops/sec)\n", 
+        nv.len, elapsed * 1000.0, (nv.len / elapsed) / 1e6);
     printf("\nFilled vec details:\n");
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);

@@ -66,7 +66,7 @@ size_t grow_capacity(const size_t current_capacity) {
     }
 
     // Grow by 50%: new_size = current + (current / 2) = current * 1.5
-    return current_capacity + (current_capacity / 2);
+    return current_capacity + (current_capacity >> 1);
 }
 
 /* Human-readable Rust-adjacent type names for logging */
@@ -136,10 +136,10 @@ Result vec_push(Vec *restrict vec, const void *item) {
     // Checks whether the next element would overflow in memory
     if (vec->len == vec ->capacity) {
         size_t new_capacity = grow_capacity(vec->capacity);
-        LOG_DEBUG("vec_push: growing Vec from %zu to %zu elements", vec->capacity, new_capacity);
+        //LOG_DEBUG("vec_push: growing Vec from %zu to %zu elements", vec->capacity, new_capacity);
 
         // Temporarily clones original data and increases capacity
-        char* temp = realloc(vec->data, new_capacity * vec->elem_size);
+        void* temp = realloc(vec->data, new_capacity * vec->elem_size);
 
         // Checks whether realloc was successful
         if (!temp) {
@@ -147,7 +147,6 @@ Result vec_push(Vec *restrict vec, const void *item) {
             return RESULT_ERR(ERR_MEMORY);
         }
 
-        // 
         vec->data = temp;
         vec->capacity = new_capacity;
     }
@@ -176,7 +175,7 @@ Result vec_pop(Vec *restrict vec, void *out_item) {
         return RESULT_ERR(ERR_INVALID);
     }
 
-    const void *last_item = vec_get(vec, vec->len - 1);
+    const char *last_item = (const char*)vec->data + ((vec->len - 1) * vec->elem_size);
     if (!last_item) {
         LOG_ERROR("vec_pop error: Failed to get last element of Vec!");
         return RESULT_ERR(ERR_INVALID);

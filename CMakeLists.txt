@@ -4,8 +4,7 @@ project(replicate)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 23)
 
-
-add_compile_definitions(LOG_LEVEL=LOG_LEVEL_INFO)  # Only show info+ higher
+add_compile_definitions(LOG_LEVEL=LOG_LEVEL_WARN)  # Only show info+ higher
 
 # --- Build Type & Logging ---
 if(NOT CMAKE_BUILD_TYPE)
@@ -16,7 +15,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(LOG_LEVEL=LOG_LEVEL_DEBUG)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_definitions(LOG_LEVEL=LOG_LEVEL_INFO)
+    add_compile_definitions(LOG_LEVEL=LOG_LEVEL_WARN)
 endif()
 
 # --- Source Management ---
@@ -43,9 +42,9 @@ add_library(project_warnings INTERFACE)
 if(WIN32)
     if(MSVC)
         target_compile_options(project_warnings INTERFACE 
-            /W4 /WX /EHsc /permissive- /sdl /D_CRT_SECURE_NO_WARNINGS
+            /W3 /WX /EHsc /permissive- /sdl /D_CRT_SECURE_NO_WARNINGS
             $<$<CONFIG:Debug>:/Zi /Od>
-            $<$<CONFIG:Release>:/O2 /Ob2 /GL>
+            $<$<CONFIG:Release>:/O2 /Oi /Ot /GL>
         )
         target_link_options(project_warnings INTERFACE $<$<CONFIG:Release>:/LTCG>)
     else()
