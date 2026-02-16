@@ -115,6 +115,7 @@ Result vec_new(Vec *restrict vec, const RustType type) {
     LOG_DEBUG("new_vec: initialized Vec [elem_size=%zu, capacity=%zu, len=%zu]",
               vec->elem_size, vec->capacity, vec->len);
 
+    vec->magic = VEC_MAGIC_INIT;  // Mark as initialized
     return RESULT_OK();
 }
 
@@ -122,7 +123,7 @@ Result vec_new(Vec *restrict vec, const RustType type) {
 Result vec_push(Vec *restrict vec, const void *item) {
     // Checks whether the Vec is allocated and whether its data is
     // allocated.
-    if (!vec || !item) { 
+    if (!vec || !item || vec->magic != VEC_MAGIC_INIT) { 
         LOG_ERROR("vec_push: invalid argument (vec or item is NULL)");
         return RESULT_ERR(ERR_INVALID); 
     }
@@ -160,7 +161,7 @@ Result vec_push(Vec *restrict vec, const void *item) {
 
 /* Remove and return last element (LIFO). Capacity unchanged. */
 Result vec_pop(Vec *restrict vec, void *out_item) {
-    if (!vec || !vec->data) {
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
         LOG_ERROR("vec_pop error: invalid argument (vec or its data is NULL) or not initialized!");
         return RESULT_ERR(ERR_INVALID);
     }
@@ -184,13 +185,13 @@ Result vec_pop(Vec *restrict vec, void *out_item) {
     memcpy(out_item, last_item, vec->elem_size);
 
     vec->len--;
-    LOG_DEBUG("Successfully popped last item of vec! New number of elements: %zu", vec->len);
+    LOG_DEBUG("vec_pop: Successfully popped last item of vec! New number of elements: %zu", vec->len);
     return RESULT_OK();
 }
 
 /* Reset length to 0 without deallocating (fast reuse) */
 Result vec_clear(Vec *vec) {
-    if (!vec || !vec->data) {
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
         LOG_ERROR("vec_clear: attempted access on uninitialized Vec");
         return RESULT_ERR(ERR_INVALID);
     }
@@ -201,7 +202,7 @@ Result vec_clear(Vec *vec) {
 }
 
 Result vec_is_empty(const Vec *restrict vec, int *is_empty) {
-    if (!vec || !vec->data) {
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
         LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
         return RESULT_ERR(ERR_INVALID);
     }
@@ -213,7 +214,7 @@ Result vec_is_empty(const Vec *restrict vec, int *is_empty) {
 /* Remove element at index, shifting remaining elements left. O(n) operation. */
 Result vec_remove(Vec *restrict vec, const size_t index, void *removed) {
     // Checks whether the provided pointer to Vec is valid
-    if (!vec || !vec->data) {
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
         LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
         return RESULT_ERR(ERR_INVALID);
     }
@@ -260,7 +261,7 @@ Result vec_remove(Vec *restrict vec, const size_t index, void *removed) {
 /* Get pointer to element at index. Returns NULL if invalid.
  * WARNING: Pointer becomes invalid after vec_free() or reallocation. */
 const void *vec_get(const Vec *restrict vec, size_t index) {
-    if (!vec || !vec->data) {
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
         LOG_ERROR("vec_get: attempted access on uninitialized Vec");
         return NULL;
     } else if (index >= vec->len) {
@@ -278,11 +279,8 @@ const void *vec_get(const Vec *restrict vec, size_t index) {
 /* Free vector's heap allocation. Sets data to NULL (safe to call multiple times).
  * NOTE: Does not free the Vec struct itself (caller owns it). */
 void vec_free(Vec *restrict vec) {
-    if (!vec) {
-        LOG_WARN("vec_free: called with NULL Vec pointer");
-        return;
-    } else if (!vec->data) {
-        LOG_WARN("Tried to free Vec that had no data or tried to double-free it");
+    if (!vec || !vec->data || vec->elem_size == 0 || vec->magic != VEC_MAGIC_INIT) {
+        LOG_WARN("vec_free error: tried to free Vec that had no data or tried to double-free it");
         return;
     }
 
@@ -291,9 +289,10 @@ void vec_free(Vec *restrict vec) {
 
     free(vec->data);
     vec->data = NULL;
-
     vec->len = 0;
     vec->capacity = 0;
+    vec->elem_size = 0;
+    vec->magic = VEC_MAGIC_FREED;
 
     LOG_INFO("vec_free: Vec successfully freed");
 }

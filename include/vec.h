@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include "result.h"
 
+#define VEC_MAGIC_INIT    0xFEEDFACE  // Initialized Vec
+#define VEC_MAGIC_FREED   0xDEADBEEF  // Freed Vec
+
 typedef enum {
     // Signed integers
     TYPE_I8,
@@ -34,6 +37,7 @@ typedef struct {
     size_t len;             // Number of elements
     size_t elem_size;       // Size of variable type in bytes
     size_t capacity;        // Max number of elements in Vec
+    uint32_t magic;
 } Vec;
 
 size_t rust_type_size(const RustType type);
