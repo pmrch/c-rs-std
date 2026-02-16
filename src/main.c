@@ -11,31 +11,12 @@
 
 #include "logging.h"
 
-<<<<<<< HEAD
 double now_seconds(void);
 double now_seconds(void) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
 }
-=======
-#if defined(_WIN32)
-#include <windows.h>
-double now_seconds(void) {
-    LARGE_INTEGER freq, counter;
-    QueryPerformanceFrequency(&freq);
-    QueryPerformanceCounter(&counter);
-    return (double)counter.QuadPart / (double)freq.QuadPart;
-}
-#else
-#include <time.h>
-double now_seconds(void) {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec + ts.tv_nsec * 1e-9;
-}
-#endif
->>>>>>> 452b3f7edaba3913dd820391b9396046c511c7ca
 
 int main() {
     char *buffer = NULL;
@@ -74,11 +55,7 @@ int main() {
 
     double elapsed = now_seconds() - start;
     printf("Pushed %zu elements in %.3f ms (%.2f M ops/sec)\n", 
-<<<<<<< HEAD
         nv.len, elapsed * 1000.0, ((double)nv.len / elapsed) / 1e6);
-=======
-        nv.len, elapsed * 1000.0, (nv.len / elapsed) / 1e6);
->>>>>>> 452b3f7edaba3913dd820391b9396046c511c7ca
     printf("\nFilled vec details:\n");
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);

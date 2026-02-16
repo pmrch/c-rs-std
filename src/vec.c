@@ -197,6 +197,8 @@ Result vec_clear(Vec *vec) {
 
     LOG_DEBUG("Successfully cleared vec with %zu elements", vec->len);
     vec->len = 0;
+
+    memset(vec->data, 0, vec->capacity * vec->elem_size);
     return RESULT_OK();
 }
 
