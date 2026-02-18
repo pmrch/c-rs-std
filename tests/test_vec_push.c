@@ -6,7 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-int push_vec_one_u8() { return test_vec_push(TYPE_U8); }
+
+DEFINE_PUSH_TESTS(u8, TYPE_U8)
 
 int main() {
     int passed = 0;
@@ -14,5 +15,6 @@ int main() {
     int index = 1;
 
     RUN_TEST(passed, failed, push_vec_one_u8, index);
+    RUN_TEST(passed, failed, push_vec_some_u8, index);
     return 0;
 }

@@ -2,16 +2,16 @@
 #define LOGGING_H
 
 
-// Default log level
-#ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_LEVEL_INFO
-#endif
-
 // Log levels
 #define LOG_LEVEL_DEBUG 0
 #define LOG_LEVEL_INFO  1
 #define LOG_LEVEL_WARN  2
 #define LOG_LEVEL_ERROR 3
+
+// Default log level
+#ifndef LOG_LEVEL
+#define LOG_LEVEL LOG_LEVEL_INFO
+#endif
 
 // DEBUG
 #if LOG_LEVEL <= LOG_LEVEL_DEBUG

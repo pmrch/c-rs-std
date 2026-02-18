@@ -280,6 +280,9 @@ const void *vec_get(const Vec *restrict vec, size_t index) {
 /* Free vector's heap allocation. Sets data to NULL (safe to call multiple times).
  * NOTE: Does not free the Vec struct itself (caller owns it). */
 void vec_free(Vec *restrict vec) {
+    fprintf(stderr, "[VFREE] data=%p elem_size=%zu magic=0x%x\n", 
+        vec->data, vec->elem_size, vec->magic);
+        
     if (!vec || !vec->data || vec->elem_size == 0 || vec->magic != VEC_MAGIC_INIT) {
         LOG_WARN("vec_free error: tried to free Vec that had no data or tried to double-free it");
         return;
