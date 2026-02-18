@@ -1,2 +1,4 @@
 **/.cache
 **/build
+**/replicate
+**/compile_commands.json
