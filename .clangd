@@ -1,0 +1,43 @@
+CompileFlags:
+  Add:
+    - -std=gnu23
+    - -O3
+    - -march=native
+    - -flto
+    - -fsanitize=address
+    - -I./include
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -Wuninitialized
+    - -Wconversion
+    - -Wsign-conversion
+    - -Wcast-align
+    - -Wcast-qual
+    - -Wstrict-aliasing=2
+    - -Wpointer-arith
+    - -Warray-bounds
+    - -Wnull-dereference
+    - -Wmissing-prototypes
+    - -Wstrict-prototypes
+    - -Wold-style-definition
+    - -Wredundant-decls
+    - -Wshadow
+    - -Wformat=2
+    - -Wformat-security
+    - -Wwrite-strings
+    - -Wvla
+    - -Wdouble-promotion
+    - -Wfloat-equal
+    - -Wundef
+    - -Wswitch-enum
+    - -Wswitch-default
+    - -Wunused
+    - -Wunused-function
+    - -Wunused-variable
+    - -Wunused-parameter
+    - -Wno-padded
+  Remove:
+    - -Werror
+    - -Wmaybe-uninitialized
+    - -Wno-declaration-after-statement

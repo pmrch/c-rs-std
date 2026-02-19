@@ -1,4 +1,6 @@
 # Makefile - Fixed compile_commands.json generation
+LOG_LEVEL ?= 2
+
 CC = gcc
 CFLAGS = -std=gnu2x -O3 -march=native -flto -fsanitize=address -I./include \
 	-Wall -Wextra -Wpedantic -Werror -Wuninitialized -Wmaybe-uninitialized \
@@ -8,7 +10,7 @@ CFLAGS = -std=gnu2x -O3 -march=native -flto -fsanitize=address -I./include \
 	-Wformat=2 -Wformat-security -Wwrite-strings -Wvla -Wdouble-promotion \
 	-Wfloat-equal -Wundef -Wswitch-enum -Wswitch-default -Wunused \
 	-Wunused-function -Wunused-variable -Wunused-parameter -Wno-padded \
-	-Wno-declaration-after-statement
+	-Wno-declaration-after-statement -DLOG_LEVEL=$(LOG_LEVEL)
 LDFLAGS = -flto
 
 SRC_DIR = src
@@ -56,6 +58,7 @@ test: $(BUILD_DIR) $(TEST_BINS)
 
 clean:
 	@rm -rf $(BUILD_DIR)
+	@rm -rf $(TARGET)
 
 distclean: clean
 	@rm -f compile_commands.json

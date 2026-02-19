@@ -42,10 +42,12 @@ int main() {
     printf("  - Total capacity: %zd\n", nv.capacity);
     printf("  - Number of elements: %zd\n", nv.len);
 
-    int64_t pushed = (int64_t)13e8;
+    int64_t pushed = (int64_t)13e7;
+    srand((unsigned)time(NULL));
+
     double start = now_seconds();
     for (int64_t i = 0; i < pushed; i++) {
-        Result vec_pushed = vec_push(&nv, &(int64_t){2 * i});
+        Result vec_pushed = vec_push(&nv, &(int64_t){rand() % 256});
         
         if (vec_pushed.err) {
             printf("Error: %s", result_description(vec_pushed.err));

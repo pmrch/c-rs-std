@@ -279,14 +279,14 @@ const void *vec_get(const Vec *restrict vec, size_t index) {
 
 /* Free vector's heap allocation. Sets data to NULL (safe to call multiple times).
  * NOTE: Does not free the Vec struct itself (caller owns it). */
-void vec_free(Vec *restrict vec) {
-    fprintf(stderr, "[VFREE] data=%p elem_size=%zu magic=0x%x\n", 
-        vec->data, vec->elem_size, vec->magic);
-        
+void vec_free(Vec *restrict vec) {    
     if (!vec || !vec->data || vec->elem_size == 0 || vec->magic != VEC_MAGIC_INIT) {
         LOG_WARN("vec_free error: tried to free Vec that had no data or tried to double-free it");
         return;
     }
+
+    LOG_DEBUG(stderr, "[VFREE] data=%p elem_size=%zu num_elem=%zu magic=0x%x\n", 
+        vec->data, vec->elem_size, vec->len, vec->magic);
 
     LOG_DEBUG("vec_free: freeing Vec with %zu elements (capacity=%zu, allocated=%s)",
         vec->len, vec->capacity, calculate_memory_footprint(vec->capacity * vec->elem_size));
@@ -309,11 +309,11 @@ const char* calculate_memory_footprint(const size_t allocation) {
     if (allocation == 0) {
         snprintf(buf, sizeof(buf), "0 bytes");
     } else if (allocation >= 1024*1024*1024) {
-        snprintf(buf, sizeof(buf), "%.2f GB", (double)allocation / (1024.0*1024*1024));
+        snprintf(buf, sizeof(buf), "%.0f GB", (double)allocation / (1024.0*1024*1024));
     } else if (allocation >= 1024*1024) {
         snprintf(buf, sizeof(buf), "%.0f MB", (double)allocation / (1024.0*1024));
     } else if (allocation >= 1024) {
-        snprintf(buf, sizeof(buf), "%.2f KB", (double)allocation / 1024.0);
+        snprintf(buf, sizeof(buf), "%.0f KB", (double)allocation / 1024.0);
     } else {
         snprintf(buf, sizeof(buf), "%zu bytes", allocation);
     }
