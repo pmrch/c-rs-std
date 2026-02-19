@@ -1,10 +1,7 @@
 #ifndef TEST_VEC_COMMON_H
 #define TEST_VEC_COMMON_H
 
-#include <math.h>
-#define FLOAT_EPSILON 0.00001f
-#define DOUBLE_EPSILON 0.0000001
-
+#include <assert.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -17,12 +14,6 @@
 
 
 // --- Core test functions ---
-bool float_eq(float a, float b);
-bool float_eq(float a, float b) { return fabsf(a - b) < FLOAT_EPSILON; }
-
-bool double_eq(double a, double b);
-bool double_eq(double a, double b) { return fabs(a - b) < DOUBLE_EPSILON; }
-
 inline static int test_vec_new(RustType type);
 inline static int test_vec_push_single(RustType type);
 inline static int test_vec_push_some(RustType type);
@@ -96,7 +87,8 @@ inline static int test_vec_push_some(RustType type);
         if (type_max == 0) { \
             return 0; \
         }\
-        c_type pushed = (c_type)((unsigned long)(rand()) + 1 % ((unsigned long)(type_max) + 1)); \
+        assert(type_max != 0); \
+        c_type pushed = (c_type)((size_t)(rand()) + 1 % ((size_t)(type_max))); \
         Result res_p = vec_push(&vec, &pushed); \
         \
         int ok_p = !res_p.err && vec.data && vec.magic == VEC_MAGIC_INIT && vec.capacity > 0; \
