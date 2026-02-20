@@ -208,7 +208,7 @@ Result vec_is_empty(const Vec *restrict vec, int *is_empty) {
         return RESULT_ERR(ERR_INVALID);
     }
 
-    if (vec->len == 0) *is_empty = 1;
+    *is_empty = vec->len == 0 ? 1 : 0;
     return RESULT_OK();
 }
 
@@ -285,7 +285,7 @@ void vec_free(Vec *restrict vec) {
         return;
     }
 
-    LOG_DEBUG(stderr, "[VFREE] data=%p elem_size=%zu num_elem=%zu magic=0x%x\n", 
+    LOG_DEBUG("[VFREE] data=%p elem_size=%zu num_elem=%zu magic=0x%x\n", 
         vec->data, vec->elem_size, vec->len, vec->magic);
 
     LOG_DEBUG("vec_free: freeing Vec with %zu elements (capacity=%zu, allocated=%s)",
