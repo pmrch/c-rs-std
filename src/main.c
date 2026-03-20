@@ -2,14 +2,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <sys/types.h>
+#include <time.h>
 
 #include "io.h"
+#include "logging.h"
 #include "result.h"
 #include "vec.h"
-
-#include "logging.h"
 
 double now_seconds(void);
 double now_seconds(void) {
@@ -19,7 +18,7 @@ double now_seconds(void) {
 }
 
 int main() {
-    char *buffer = NULL;
+    char* buffer = NULL;
     Result read = read_to_string("oi.txt", &buffer);
     if (read.err) {
         LOG_ERROR("Error: %s", result_description(read.err));
@@ -48,7 +47,7 @@ int main() {
     double start = now_seconds();
     for (int64_t i = 0; i < pushed; i++) {
         Result vec_pushed = vec_push(&nv, &(int64_t){rand() % 256});
-        
+
         if (vec_pushed.err) {
             printf("Error: %s", result_description(vec_pushed.err));
             return -1;
@@ -56,8 +55,8 @@ int main() {
     }
 
     double elapsed = now_seconds() - start;
-    printf("Pushed %zu elements in %.3f ms (%.2f M ops/sec)\n", 
-        nv.len, elapsed * 1000.0, ((double)nv.len / elapsed) / 1e6);
+    printf("Pushed %zu elements in %.3f ms (%.2f M ops/sec)\n", nv.len, elapsed * 1000.0,
+           ((double)nv.len / elapsed) / 1e6);
     printf("\nFilled vec details:\n");
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);
@@ -70,17 +69,14 @@ int main() {
         return -1;
     }
 
-    printf("\nGot the following result at index %zu of nv: %zu\n", 
-        index, *(const int64_t*)got
-    );
+    printf("\nGot the following result at index %zu of nv: %zu\n", index, *(const int64_t*)got);
 
-    void *out_item = malloc(sizeof(int64_t));
+    void* out_item = malloc(sizeof(int64_t));
     Result popped = vec_pop(&nv, out_item);
     if (popped.err) {
         LOG_ERROR("Failed to pop last item");
         return -1;
     }
-
 
     printf("Popped '%zu' from vec!\n", *(int64_t*)out_item);
     Result cleared = vec_clear(&nv);
@@ -93,23 +89,37 @@ int main() {
     printf("  - Size of type: %zd bytes\n", nv.elem_size);
     printf("  - Total capacity: %zd\n", nv.capacity);
     printf("  - Number of elements: %zd\n\n", nv.len);
-    
-    int *is_empty = malloc(sizeof(int));
+
+    int* is_empty = malloc(sizeof(int));
     Result checked_empty = vec_is_empty(&nv, is_empty);
     if (checked_empty.err) {
         free(is_empty);
     }
 
     if (!*is_empty) {
-        void *out_iteem = malloc(sizeof(int64_t));
+        void* out_iteem = malloc(sizeof(int64_t));
         Result poppedd = vec_pop(&nv, out_iteem);
 
-        if (poppedd.err) free(out_item);
-        else printf("popped: %zu\n", *(int64_t*)out_iteem);
-    } else LOG_WARN("Tried to use vec_pop on an empty array!"); 
+        if (poppedd.err)
+            free(out_item);
+        else
+            printf("popped: %zu\n", *(int64_t*)out_iteem);
+    } else
+        LOG_WARN("Tried to use vec_pop on an empty array!");
 
-    if (vec_remove(&nv, 1, NULL).err) {
-        
+    vec_clear(&nv);
+    vec_push(&nv, &(int64_t){109281});
+    vec_push(&nv, &(int64_t){109282});
+    vec_push(&nv, &(int64_t){109283});
+
+    Result vec_inserted = vec_insert(&nv, 2, &(int64_t){18});
+    if (vec_inserted.err) {
+        LOG_ERROR("Failed to insert into vec!");
+    }
+
+    for (size_t i = 0; i < nv.len; i++) {
+        const char* ggot = vec_get(&nv, i);
+        printf("%zu\n", *(const size_t*)ggot);
     }
 
     vec_free(&nv);

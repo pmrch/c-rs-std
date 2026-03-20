@@ -1,8 +1,8 @@
 # Makefile - Fixed compile_commands.json generation
-LOG_LEVEL ?= 2
+LOG_LEVEL ?= 1
 
 CC = gcc
-CFLAGS = -std=gnu2x -O3 -march=native -flto -fsanitize=address -I./include \
+CFLAGS = -std=gnu2x -O3 -march=native -flto -ffast-math -I./include \
 	-Wall -Wextra -Wpedantic -Werror -Wuninitialized -Wmaybe-uninitialized \
 	-Wconversion -Wsign-conversion -Wcast-align -Wcast-qual -Wstrict-aliasing=2 \
 	-Wpointer-arith -Warray-bounds -Wnull-dereference -Wmissing-prototypes \
@@ -11,7 +11,7 @@ CFLAGS = -std=gnu2x -O3 -march=native -flto -fsanitize=address -I./include \
 	-Wfloat-equal -Wundef -Wswitch-enum -Wswitch-default -Wunused \
 	-Wunused-function -Wunused-variable -Wunused-parameter -Wno-padded \
 	-Wno-declaration-after-statement -DLOG_LEVEL=$(LOG_LEVEL)
-LDFLAGS = -flto
+LDFLAGS = -flto -ffast-math
 
 SRC_DIR = src
 BUILD_DIR = build

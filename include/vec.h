@@ -3,10 +3,11 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
 #include "result.h"
 
-#define VEC_MAGIC_INIT    0xFEEDFACE  // Initialized Vec
-#define VEC_MAGIC_FREED   0xDEADBEEF  // Freed Vec
+#define VEC_MAGIC_INIT 0xFEEDFACE   // Initialized Vec
+#define VEC_MAGIC_FREED 0xDEADBEEF  // Freed Vec
 
 typedef enum {
     // Signed integers
@@ -14,45 +15,46 @@ typedef enum {
     TYPE_I16,
     TYPE_I32,
     TYPE_I64,
-    
+
     // Unsigned integers
     TYPE_U8,
     TYPE_U16,
     TYPE_U32,
     TYPE_U64,
-    
+
     // Floating point
     TYPE_F32,
     TYPE_F64,
-    
+
     // Boolean (1 byte like Rust)
     TYPE_BOOL,
-    
+
     // Character (1 byte like Rust)
     TYPE_CHAR,
 } RustType;
 
 typedef struct {
-    void* data;             // Stored data
-    size_t len;             // Number of elements
-    size_t elem_size;       // Size of variable type in bytes
-    size_t capacity;        // Max number of elements in Vec
+    void* data;        // Stored data
+    size_t len;        // Number of elements
+    size_t elem_size;  // Size of variable type in bytes
+    size_t capacity;   // Max number of elements in Vec
     uint32_t magic;
 } Vec;
 
 size_t rust_type_size(const RustType type);
 size_t grow_capacity(const size_t current_capacity);
 
-Result vec_clear(Vec *vec);
-Result vec_pop(Vec *restrict vec, void *out_item);
-Result vec_is_empty(const Vec *vec, int *is_empty);
-Result vec_push(Vec *restrict vec, const void *item);
-Result vec_new(Vec *restrict vec, const RustType type);
-Result vec_remove(Vec *restrict vec, const size_t index, void *removed);
+Result vec_clear(Vec* vec);
+Result vec_pop(Vec* restrict vec, void* out_item);
+Result vec_is_empty(const Vec* vec, int* is_empty);
+Result vec_push(Vec* restrict vec, const void* item);
+Result vec_insert(Vec* restrict vec, const size_t index, const void* item);
+Result vec_new(Vec* restrict vec, const RustType type);
+Result vec_remove(Vec* restrict vec, const size_t index, void* removed);
 
-void vec_free(Vec *restrict vec);
-const void *vec_get(const Vec *restrict vec, size_t index);
+void vec_free(Vec* restrict vec);
+const void* vec_get(const Vec* restrict vec, size_t index);
 
-const char *calculate_memory_footprint(const size_t allocation);
+const char* calculate_memory_footprint(const size_t allocation);
 
 #endif

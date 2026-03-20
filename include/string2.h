@@ -1,9 +1,8 @@
 #ifndef STRING_2_H
 #define STRING_2_H
 
-#include "vec.h"
 #include "result.h"
-
+#include "vec.h"
 
 typedef Vec Vec_u8;
 typedef struct {
@@ -11,7 +10,7 @@ typedef struct {
     uint32_t magic;
 } String;
 
-Result string_new(String *restrict s);
-Result string_from(String *restrict s, const char* str);
+Result string_new(String* restrict s);
+Result string_from(String* restrict s, const char* str);
 
 #endif

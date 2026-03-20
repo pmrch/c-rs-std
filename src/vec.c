@@ -126,8 +126,8 @@ Result vec_new(Vec* restrict vec, const RustType type) {
     vec->elem_size = type_size;
     vec->len = 0;
 
-    LOG_DEBUG("new_vec: initialized Vec [elem_size=%zu, capacity=%zu, len=%zu]",
-              vec->elem_size, vec->capacity, vec->len);
+    LOG_DEBUG("new_vec: initialized Vec [elem_size=%zu, capacity=%zu, len=%zu]", vec->elem_size,
+              vec->capacity, vec->len);
 
     vec->magic = VEC_MAGIC_INIT;  // Mark as initialized
     return RESULT_OK();
@@ -158,8 +158,7 @@ Result vec_push(Vec* restrict vec, const void* item) {
 
         // Checks whether realloc was successful
         if (!temp) {
-            LOG_ERROR("vec_push: failed to realloc Vec (new capacity = %zu)",
-                      new_capacity);
+            LOG_ERROR("vec_push: failed to realloc Vec (new capacity = %zu)", new_capacity);
             return RESULT_ERR(ERR_MEMORY);
         }
 
@@ -193,8 +192,7 @@ Result vec_pop(Vec* restrict vec, void* out_item) {
         return RESULT_ERR(ERR_INVALID);
     }
 
-    const char* last_item =
-        (const char*)vec->data + ((vec->len - 1) * vec->elem_size);
+    const char* last_item = (const char*)vec->data + ((vec->len - 1) * vec->elem_size);
 
     memcpy(out_item, last_item, vec->elem_size);
 
@@ -221,8 +219,7 @@ Result vec_clear(Vec* vec) {
 
 Result vec_is_empty(const Vec* restrict vec, int* is_empty) {
     if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
-        LOG_ERROR(
-            "Failed to check vec for being empty or not. Passed invalid Vec!");
+        LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
         return RESULT_ERR(ERR_INVALID);
     }
 
@@ -234,8 +231,7 @@ Result vec_is_empty(const Vec* restrict vec, int* is_empty) {
 Result vec_remove(Vec* restrict vec, const size_t index, void* removed) {
     // Checks whether the provided pointer to Vec is valid
     if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
-        LOG_ERROR(
-            "Failed to check vec for being empty or not. Passed invalid Vec!");
+        LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
         return RESULT_ERR(ERR_INVALID);
     }
 
@@ -248,8 +244,7 @@ Result vec_remove(Vec* restrict vec, const size_t index, void* removed) {
     /* Checks whether provided item index which we wish to remove. Returns early
      * with error if it's larger than the available number of elements */
     if (vec->len < index) {
-        LOG_ERROR("Invalid index %zu larger than number of elements: %zu",
-                  index, vec->len);
+        LOG_ERROR("Invalid index %zu larger than number of elements: %zu", index, vec->len);
         return RESULT_ERR(ERR_INVALID);
     }
 
@@ -280,6 +275,38 @@ Result vec_remove(Vec* restrict vec, const size_t index, void* removed) {
     return RESULT_OK();
 }
 
+Result vec_insert(Vec* restrict vec, const size_t index, const void* item) {
+    // Checks whether the provided pointer to Vec is valid
+    if (!vec || !vec->data || vec->magic != VEC_MAGIC_INIT) {
+        LOG_ERROR("Failed to check vec for being empty or not. Passed invalid Vec!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    if (!item) {
+        LOG_ERROR("You tried to insert a NULL!");
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    if (index > vec->len) {
+        LOG_ERROR("Index out of bounds, tried inserting at index %zu when maximum is %zu", index,
+                  vec->len - 1);
+        return RESULT_ERR(ERR_INVALID);
+    }
+
+    char* base = (char*)vec->data;
+    char* insertion_address = base + (index * vec->elem_size);
+    char* end_address = base + (vec->len * vec->elem_size);
+
+    memmove(insertion_address + vec->elem_size, insertion_address,
+            (size_t)end_address - (size_t)insertion_address);
+
+    memcpy(insertion_address, item, vec->elem_size);
+    vec->len++;
+
+    LOG_INFO("Successfully inserted an item");
+    return RESULT_OK();
+}
+
 /* Get pointer to element at index. Returns NULL if invalid.
  * WARNING: Pointer becomes invalid after vec_free() or reallocation. */
 const void* vec_get(const Vec* restrict vec, size_t index) {
@@ -287,8 +314,7 @@ const void* vec_get(const Vec* restrict vec, size_t index) {
         LOG_ERROR("vec_get: attempted access on uninitialized Vec");
         return NULL;
     } else if (index >= vec->len) {
-        LOG_ERROR("vec_get: tried to access invalid index %zu (len=%zu)", index,
-                  vec->len);
+        LOG_ERROR("vec_get: tried to access invalid index %zu (len=%zu)", index, vec->len);
         return NULL;
     }
 
@@ -299,21 +325,18 @@ const void* vec_get(const Vec* restrict vec, size_t index) {
 /* Free vector's heap allocation. Sets data to NULL (safe to call multiple
  * times). NOTE: Does not free the Vec struct itself (caller owns it). */
 void vec_free(Vec* restrict vec) {
-    if (!vec || !vec->data || vec->elem_size == 0 ||
-        vec->magic != VEC_MAGIC_INIT) {
+    if (!vec || !vec->data || vec->elem_size == 0 || vec->magic != VEC_MAGIC_INIT) {
         LOG_WARN(
             "vec_free error: tried to free Vec that had no data or tried to "
             "double-free it");
         return;
     }
 
-    LOG_DEBUG("[VFREE] data=%p elem_size=%zu num_elem=%zu magic=0x%x\n",
-              vec->data, vec->elem_size, vec->len, vec->magic);
+    LOG_DEBUG("[VFREE] data=%p elem_size=%zu num_elem=%zu magic=0x%x\n", vec->data, vec->elem_size,
+              vec->len, vec->magic);
 
-    LOG_DEBUG(
-        "vec_free: freeing Vec with %zu elements (capacity=%zu, allocated=%s)",
-        vec->len, vec->capacity,
-        calculate_memory_footprint(vec->capacity * vec->elem_size));
+    LOG_DEBUG("vec_free: freeing Vec with %zu elements (capacity=%zu, allocated=%s)", vec->len,
+              vec->capacity, calculate_memory_footprint(vec->capacity * vec->elem_size));
 
     free(vec->data);
     vec->data = NULL;
@@ -333,11 +356,9 @@ const char* calculate_memory_footprint(const size_t allocation) {
     if (allocation == 0) {
         snprintf(buf, sizeof(buf), "0 bytes");
     } else if (allocation >= 1024 * 1024 * 1024) {
-        snprintf(buf, sizeof(buf), "%.0f GB",
-                 (double)allocation / (1024.0 * 1024 * 1024));
+        snprintf(buf, sizeof(buf), "%.0f GB", (double)allocation / (1024.0 * 1024 * 1024));
     } else if (allocation >= 1024 * 1024) {
-        snprintf(buf, sizeof(buf), "%.0f MB",
-                 (double)allocation / (1024.0 * 1024));
+        snprintf(buf, sizeof(buf), "%.0f MB", (double)allocation / (1024.0 * 1024));
     } else if (allocation >= 1024) {
         snprintf(buf, sizeof(buf), "%.0f KB", (double)allocation / 1024.0);
     } else {

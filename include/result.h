@@ -17,6 +17,6 @@ typedef struct {
 
 const char* result_description(ErrorCode code);
 
-#define RESULT_OK() ((Result) { 0, OK })
-#define RESULT_ERR(e) ((Result) { 1, e })
+#define RESULT_OK() ((Result){0, OK})
+#define RESULT_ERR(e) ((Result){1, e})
 #endif
